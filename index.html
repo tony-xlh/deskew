@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Scan Documents and Deskew</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="https://unpkg.com/dwt@18.4.1/dist/dynamsoft.webtwain.min.js"></script>
+    <style>
+      #dwtcontrolContainer {
+        width: 360px;
+        height: 480px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div>
+        <input class="scanButton" type="button" value="Scan" onclick="AcquireImage();" />
+        <input class="loadFilesButton" type="button" value="Load Files" onclick="LoadFiles();" />
+        <input class="editButton" type="button" value="Edit" onclick="Edit();" />
+        <input class="saveButton" type="button" value="Save" onclick="Save();" />
+        <input class="copyButton" type="button" value="Copy Selected" onclick="CopySelected();" />
+      </div>
+      <div>
+        <input class="deskewButton" type="button" value="Deskew Selected" onclick="DeskewSelected();" />
+        <input class="deskewAllButton" type="button" value="Deskew All" onclick="DeskewAll();" />
+      </div>
+      <div id="dwtcontrolContainer"></div>
+    </div>
+    <script>
+      let DWObject;
+      Dynamsoft.DWT.AutoLoad = false;
+      Dynamsoft.DWT.ResourcesPath = "https://unpkg.com/dwt@18.4.1/dist";
+      init();
+
+      function init(){
+        Dynamsoft.DWT.Containers = [{ ContainerId: 'dwtcontrolContainer',Width: 270, Height: 350 }];
+        Dynamsoft.DWT.RegisterEvent('OnWebTwainReady', function () {
+          console.log("ready");
+          DWObject = Dynamsoft.DWT.GetWebTwain('dwtcontrolContainer');
+          DWObject.Viewer.width = "100%";
+          DWObject.Viewer.height = "100%";
+          DWObject.SetViewMode(2,2);
+        });
+        Dynamsoft.DWT.Load();
+      }
+
+      function AcquireImage(){
+        if (DWObject) {
+          DWObject.SelectSourceAsync().then(function (sourceIndex) {
+            return DWObject.AcquireImageAsync();
+          })
+          .catch(function (e) {
+            console.log(e);
+          });
+        }
+      }
+
+      function LoadFiles(){
+        if (DWObject) {
+          DWObject.IfShowFileDialog = true; //"Open File" dialog will be opened.
+          DWObject.LoadImageEx(
+            "", //file name can be empty if "Open File" dialog is called.
+            Dynamsoft.DWT.EnumDWT_ImageType.IT_ALL,
+            function () {
+              console.log("success");
+            },
+            function (errorCode, errorString) {
+              console.log(errorString);
+            }
+          );
+        }
+      }
+
+      function Save() {
+        if (DWObject) {
+          DWObject.SaveAllAsPDF("Scannd.pdf");
+        }
+      }
+
+      function Edit(){
+        if (DWObject){
+          const imageEditor = DWObject.Viewer.createImageEditor();
+          imageEditor.show();
+        }
+      }
+
+      function CopySelected(){
+        if (DWObject){
+          DWObject.CopyToClipboard(DWObject.CurrentImageIndexInBuffer);
+          alert("Copied");
+        }
+      }
+
+      function DeskewSelected(){
+        if (DWObject){
+          Deskew(DWObject.CurrentImageIndexInBuffer);
+        }
+      }
+
+      async function DeskewAll(){
+        if (DWObject){
+          for (let index = 0; index < DWObject.HowManyImagesInBuffer; index++) {
+            DWObject.Viewer.gotoPage(index);
+            await Deskew(index);
+          }
+        }
+      }
+
+      function Deskew(index) {
+        return new Promise((resolve, reject) => {
+          DWObject.GetSkewAngle(
+            index,
+            function(angle) {
+              console.log("skew angle: " + angle);
+              DWObject.Rotate(index, angle, true,
+                function() {
+                  console.log("Successfully deskewed an image!");
+                  resolve();
+                },
+                function(errorCode, errorString) {
+                  console.log(errorString);
+                  reject(errorString);
+                }
+              );
+            },
+            function(errorCode, errorString) {
+              console.log(errorString);
+              reject(errorString);
+            }
+          );
+        })
+      }
+    </script>
+  </body>
+</html>
