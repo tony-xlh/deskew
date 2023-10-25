@@ -11,6 +11,10 @@ def get_normalized_image(path):
     gray = cv2.GaussianBlur(gray, (9, 9), 0)
     gray = cv2.resize(gray,(resized_width,resized_height))
     gray = cv2.bitwise_not(gray)
+    try:
+        gray = gray[20:resized_height-40, 20:resized_width-40] #crop border
+    except:
+        print("Failed to crop border")
     return gray
     
 def get_skew_angle(gray):
