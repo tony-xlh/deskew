@@ -46,7 +46,9 @@ def deskew(path):
     height = original.shape[0]
     width = original.shape[1]
     m = cv2.getRotationMatrix2D((width / 2, height / 2), angle, 1)
-    deskewed = cv2.warpAffine(original, m, (width, height), borderMode=cv2.BORDER_REPLICATE)
+    
+    #deskewed = cv2.warpAffine(original, m, (width, height), borderMode=cv2.BORDER_REPLICATE)
+    deskewed = cv2.warpAffine(original, m, (width, height), borderValue=(255,255,255))
     #cv2.namedWindow('deskewed',cv2.WINDOW_NORMAL)
     #cv2.imshow("deskewed", deskewed)
     #cv2.namedWindow('original',cv2.WINDOW_NORMAL)
