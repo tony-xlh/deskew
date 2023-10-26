@@ -4,7 +4,7 @@ A collection of document deskewing methods.
 
 * [index.html](https://tony-xlh.github.io/deskew/). A web document scanning app based on [Dynamic Web TWAIN](https://www.dynamsoft.com/web-twain/overview) which provides document images deskewing.
 * `run-magick.bat`. Deskew document images using ImageMagick.
-* `run-magick.py`. Deskew document images using Python + OpenCV.
+* `run-python.py`. Deskew document images using Python + OpenCV.
 
 
 ## Delve into Deskewing
