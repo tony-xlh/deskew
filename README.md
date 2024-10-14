@@ -23,3 +23,8 @@ Here are the steps using image processing to deskew document images based on tex
 4. Run affine transformation to get the deskewed image.
 
 You can find the corresponding code in the `py` file.
+
+## Blog
+
+[How to Deskew Scanned Documents](https://www.dynamsoft.com/codepool/deskew-scanned-document.html)
+
